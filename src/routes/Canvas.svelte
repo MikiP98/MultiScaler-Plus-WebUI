@@ -4,39 +4,67 @@
         TopDown,
         Compare
     }
+    const CanvasModeToString = {
+        [CanvasMode.LeftRight]: "mode-left-right",
+        [CanvasMode.TopDown]: "mode-top-down",
+        [CanvasMode.Compare]: "mode-compare"
+    }
 
     let activeMode: CanvasMode = CanvasMode.Compare;
+    let activeModeString: string = "mode-compare";
 
     let imageLeftSrc: string = "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg";
     let imageRightSrc: string = "https://h5p.org/sites/default/files/h5p/content/1209180/images/file-6113d5f8845dc.jpeg";
 
     let dividerPositionValue: number = 0.5;
+    let dividerActive = "active";
 
-    let isDragging: boolean = false;
-    function startDivisionFollow() {
-        console.log("startDivisionFollow");
-        isDragging = true;
-    }
-    function stopDivisionFollow() {
-        console.log("stopDivisionFollow");
-        isDragging = false;
+    export let isDragging: boolean = false;
+    function startDivisionFollow(e: Event) {
+        if (activeMode == CanvasMode.Compare) {
+            pauseEvent(e)
+            console.log("startDivisionFollow");
+            isDragging = true;
+        }
     }
 
-    let canvas = document.getElementById("canvas");
-    function updateDividerPosition(event: MouseEvent) {
+    let canvas: HTMLElement | null = null;
+    function updateDividerPositionMouse(event: MouseEvent) {
         if (isDragging) {
-            // console.log("updateDividerPosition");
+            pauseEvent(event);
+            console.log("updateDividerPosition");
 
             if (canvas == null) {
-                return;
+                canvas = document.getElementById("canvas");
+                if (canvas == null) {
+                    return;
+                }
             }
+            updateDividerPosition(canvas, event.clientX);
+        }
+    }
+    function updateDividerPositionTouch(event: TouchEvent) {
+        if (isDragging) {
+            pauseEvent(event);
+            console.log("updateDividerPosition");
 
+            if (canvas == null) {
+                canvas = document.getElementById("canvas");
+                if (canvas == null) {
+                    return;
+                }
+            }
+            updateDividerPosition(canvas, event.touches[0].clientX);
+        }
+    }
+    function updateDividerPosition(canvas: HTMLElement, eventX: number) {
+        if (isDragging) {
             let canvasRect = canvas.getBoundingClientRect();
 
-            let dividerPosition = (event.clientX - canvasRect.left) / canvasRect.width;
+            let dividerPosition = (eventX - canvasRect.left) / canvasRect.width;
             dividerPosition = Math.max(Math.min(dividerPosition, canvasRect.width), 0);
 
-            if (Math.abs(dividerPosition - 0.5) < 0.01) {
+            if (Math.abs(dividerPosition - 0.5) < 0.0078125) {
                 dividerPosition = 0.5;
             }
 
@@ -44,23 +72,51 @@
             // console.log(dividerPositionValue);
         }
     }
+
+    function pauseEvent(e: Event){
+        if(e.stopPropagation) e.stopPropagation();
+        if(e.preventDefault) e.preventDefault();
+        e.cancelBubble=true;
+        e.returnValue=false;
+        return false;
+    }
+
+    function setActiveMode(mode: CanvasMode) {
+        activeMode = mode;
+        activeModeString = CanvasModeToString[mode];
+        if (activeMode != CanvasMode.Compare) {
+            dividerPositionValue = 0.5;
+            dividerActive = "";
+        } else {
+            dividerActive = "active";
+        }
+    }
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div id="root" style="--divider-position-value: {dividerPositionValue}" on:mousemove={updateDividerPosition} on:mouseup={stopDivisionFollow}>
+<div id="root" style="--divider-position-value: {dividerPositionValue}" on:mousemove={updateDividerPositionMouse} on:touchmove={updateDividerPositionTouch}>
     <div id="image-left-viewing-window">
-        <div id="image-left" class="image-container">
+        <div id="bg-image-left" class="bg-image {activeModeString}" style="--url: url({imageLeftSrc})"></div>
+        <div id="image-left" class="image-container {activeModeString}">
             <img src="{imageLeftSrc}" alt="left" />
         </div>
     </div>
-    <div id="divider" on:mousedown={startDivisionFollow}></div>
+    <div id="divider" on:mousedown={startDivisionFollow} on:touchstart={startDivisionFollow} class="{dividerActive}"></div>
     <div id="image-right-viewing-window">
-        <div id="image-right" class="image-container">
+        <div id="bg-image-right" class="bg-image {activeModeString}" style="--url: url({imageRightSrc})"></div>
+        <div id="image-right" class="image-container {activeModeString}">
             <img src="{imageRightSrc}" alt="right" />
         </div>
     </div>
     <div id="overlay">
-        
+        <div id="mode_button">
+            <button on:click={() => setActiveMode(CanvasMode.LeftRight)}>Left-Right</button>
+            <button on:click={() => setActiveMode(CanvasMode.TopDown)}>Top-Down</button>
+            <button on:click={() => setActiveMode(CanvasMode.Compare)}>Compare</button>
+        </div>
+        <div id="controls-left"></div>
+        <div id="controls-mid"></div>
+        <div id="controls-right"></div>
     </div>
 </div>
 
@@ -69,6 +125,8 @@
         position: relative;
         width: 100%;
         height: 100%;
+
+        box-shadow: inset 0px 0px calc(var(--unit) / 3) 0px black;
 
         --divider-position-value: 0.5;  /* Default 0.5, overwritten by JS */
         --divider-position: calc(100% * var(--divider-position-value));
@@ -82,13 +140,33 @@
         justify-content: center;
         align-items: center;
     }
+    .bg-image {
+        --url: url();
+
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        background-image: var(--url);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 80% 80%;
+
+        mask-image: radial-gradient(circle, black 0%, transparent 80%, transparent 100%);
+
+        filter: blur(calc(var(--unit) * 7/12)) opacity(0.5);
+    }
+    .image-container * {
+        filter: none;
+    }
     #root * {
         background-color: transparent;
     }
     #root img {
-        width: 800px;
+        width: 700px;
         height: 400px;
         /* object-fit: contain; */
+        object-fit: cover;
     }
 
     #divider {
@@ -117,12 +195,16 @@
         border-radius: 100%;
 
         background-color: var(--color);
-        backdrop-filter: blur(8px);
-
-        cursor: ew-resize;
+        backdrop-filter: blur(8px); /* invert(1) hue-rotate(180deg) drop-shadow(0px 0px 12px var(--color)); */
+        /* filter: opacity(var(--transparency)); */
+        /* box-shadow: 0px 0px 65px 0.5px var(--color-hover); */
 
         z-index: 1;
         overflow: visible;
+    }
+    #divider.active {
+        cursor: ew-resize;
+        box-shadow: 0px 0px 65px 0.5px var(--color-hover);
     }
     #divider::after {
         --segment-width: 6px;
@@ -134,7 +216,7 @@
         position: relative;
 
         top: calc(-15360px + var(--holder-size) - 100% / 8);
-        left: calc(var(--holder-size) - var(--holder-size) / 2 - 18px);
+        left: calc(var(--holder-size) - var(--holder-size) / 2 - 24px);
 
         width: 90%;
         height: 50%;
@@ -169,8 +251,26 @@
 
         /* background-color: var(--color); */
         background-color: var(--color);
+        /* filter: invert(1) hue-rotate(180deg); */
     }
-    #divider:hover, #divider:hover::before, #divider:hover::after {
+    #divider.active:hover, 
+    #divider.active:hover::before, 
+    #divider.active:hover::after, 
+    #divider.active:active, 
+    #divider.active:active::before, 
+    #divider.active:active::after {
+        background-color: var(--color-hover);
+        /* backdrop-filter: invert(1) grayscale(1) blur(16px); */
+        /* backdrop-filter: brightness(0.667) blur(8px); */
+        box-shadow: 0px 0px 12px 1px var(--color-hover);
+        /* filter: invert(0) hue-rotate(0); */
+    }
+    #divider.active:touchstart, 
+    #divider.active:touchstart::before, 
+    #divider.active:touchstart::after,
+    #divider.active:touchmove, 
+    #divider.active:touchmove::before, 
+    #divider.active:touchmove::after {
         background-color: var(--color-hover);
         /* backdrop-filter: invert(1) grayscale(1) blur(16px); */
         /* backdrop-filter: brightness(0.667) blur(8px); */
@@ -189,15 +289,28 @@
         width: calc(100% - var(--divider-position));
     }
 
-    #image-left {
+    #image-left.mode-compare, #bg-image-left.mode-compare {
         width: calc(100% / var(--divider-position-value));
     }
-    #image-right {
+    #image-right.mode-compare {
         position: relative;
-
+    }
+    #image-right.mode-compare, #bg-image-right.mode-compare {
         --proportion: calc(var(--divider-position-value) / (1 - var(--divider-position-value)));
         left: calc(-100% * var(--proportion));
 
         width: calc(100% / (1 - var(--divider-position-value)));
+    }
+
+    #image-left.mode-left-right, #image-right.mode-left-right {
+        overflow: auto;
+    }
+
+    #overlay {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+
+        padding: calc(var(--unit) / 2);
     }
 </style>
