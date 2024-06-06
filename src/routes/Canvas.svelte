@@ -109,7 +109,7 @@
         </div>
     </div>
     <div id="overlay">
-        <div id="mode_button">
+        <div id="mode-button">
             <button on:click={() => setActiveMode(CanvasMode.LeftRight)}>Left-Right</button>
             <button on:click={() => setActiveMode(CanvasMode.TopDown)}>Top-Down</button>
             <button on:click={() => setActiveMode(CanvasMode.Compare)}>Compare</button>
@@ -142,6 +142,7 @@
     }
     .bg-image {
         --url: url();
+        --glow-coverage: 80%;
 
         position: absolute;
         width: 100%;
@@ -150,11 +151,13 @@
         background-image: var(--url);
         background-position: center;
         background-repeat: no-repeat;
-        background-size: 80% 80%;
+        background-size: var(--glow-coverage) var(--glow-coverage);
 
-        mask-image: radial-gradient(circle, black 0%, transparent 80%, transparent 100%);
+        mask-image: radial-gradient(circle, black 0%, transparent var(--glow-coverage), transparent 100%);
 
-        filter: blur(calc(var(--unit) * 7/12)) opacity(0.5);
+        filter: blur(calc(var(--unit) * 7/12)) opacity(0.667);
+
+        z-index: -1;
     }
     .image-container * {
         filter: none;
@@ -310,7 +313,22 @@
         display: grid;
         grid-template-columns: repeat(16, 1fr);
         grid-template-rows: repeat(10, 1fr);
+        --overlay-cell-height: ;
 
         padding: calc(var(--unit) / 2);
+    }
+    #mode-button {
+        grid-column: 1;
+        grid-row: 1;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #mode-button > button {
+        --button-size: 48px;
+
+        width: var(--button-size);
+        height: var(--button-size);
     }
 </style>

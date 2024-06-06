@@ -1,12 +1,15 @@
 <script lang="ts">
     import Canvas from "./Canvas.svelte";
-	import Foo from "./Foo.svelte";
+	import Menu from "./Menu.svelte";
+    import Navbar from "./Navbar.svelte";
 
     let isDragging: boolean = false;
     function stopDivisionFollow(e: Event) {
-        pauseEvent(e)
-        console.log("stopDivisionFollow");
-        isDragging = false;
+        if (isDragging) {
+            pauseEvent(e)
+            console.log("stopDivisionFollow");
+            isDragging = false;
+        }
     }
 
     function pauseEvent(e: Event){  // Duplicated in Canvas.svelte
@@ -40,14 +43,24 @@
         <Canvas bind:isDragging={isDragging} />
     </div>
 
-    <button id="menu-right-switch" on:click={toggleRightMenu}>--------</button>
+    <button id="menu-right-switch" on:click={toggleRightMenu}>------</button>
     <div id="menu-right">
-        Menu right
+        <nav>
+            <Navbar />
+        </nav>
+        <form>
+            <Menu />
+        </form>
     </div>
 
-    <button id="menu-down-switch" on:click={toggleDownMenu}>--------</button>
+    <button id="menu-down-switch" on:click={toggleDownMenu}>------</button>
     <div id="menu-down">
-        Menu down
+        <nav>
+            <Navbar />
+        </nav>
+        <form>
+            <Menu />
+        </form>
     </div>
 </div>
 
@@ -61,6 +74,16 @@
 
         box-sizing: border-box;
 
+        color: var(--font-color);
+        font-family: 'JetBrains Mono';
+
+        /* background-color: var(--background-color); */
+    }
+    :global(body) {
+        background-size: 100% 100%;
+	    background-position: 0px 0px,0px 0px;
+        background-image: linear-gradient(20deg, #00001488 0%, #000014 0%, #00142888 70%, #7F400088 100%),linear-gradient(301deg, #112700FF 0%, #400072FF 100%);
+
         --unit: min(calc(100vh / 10), calc(100vw / 16));
         /* --unit: calc(100vw / 16);
         --unit: calc(100vh / 10); */
@@ -71,15 +94,6 @@
         --accent-color-g: 216;
         --accent-color-b: 230;
         --font-color: lightBlue;
-
-        color: var(--font-color);
-
-        /* background-color: var(--background-color); */
-    }
-    :global(body) {
-        background-size: 100% 100%;
-	    background-position: 0px 0px,0px 0px;
-        background-image: linear-gradient(20deg, #00001488 0%, #000014 0%, #00142888 70%, #7F400088 100%),linear-gradient(301deg, #112700FF 0%, #400072FF 100%);
     }
 
     #root {
@@ -117,7 +131,8 @@
 
         position: relative;
 
-        border: 2px solid lightblue;
+        border: 1px solid lightblue;
+        border-width: 0 1px 1px 0;
         box-sizing: border-box;
     }
 
@@ -192,5 +207,44 @@
     #menu-down-switch:hover {
         height: calc(var(--b) * var(--scale));
         top: calc(100vh - var(--down) - var(--b) * var(--scale));
+    }
+
+    #menu-right > nav, #menu-down > nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+
+        transition: all var(--transition-sync);
+
+        border: 1px solid lightblue;
+
+        --divider: 14;
+    }
+    #menu-right {
+        display: flex;
+        flex-direction: row;
+    }
+    #menu-right > nav {
+        flex-direction: column;
+        width: calc(var(--right) / var(--divider));
+        
+        border-width: 1px 1px 1px 0;
+    }
+    #menu-right > nav > :global(div) > :global(span) {
+        transform: rotate(-90deg);
+    }
+    #menu-down > nav {
+        border-width: 0 1px 1px 1px;
+
+        height: calc(var(--down) / var(--divider) * 1.333);
+    }
+
+    #menu-down > form, #menu-right > form {
+        display: flex;
+        flex-direction: column;
+        /* justify-content: space-between;
+        height: 100%; */
+
+        padding: calc(var(--unit) / 4);
     }
 </style>
