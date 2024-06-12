@@ -300,7 +300,7 @@
     }
     #image-right.mode-compare, #bg-image-right.mode-compare {
         --proportion: calc(var(--divider-position-value) / (1 - var(--divider-position-value)));
-        left: calc(-100% * var(--proportion));
+        left: round(down, calc(-100% * var(--proportion)), 1px);  /* round stops the image from unstable jitter by 1 px */
 
         width: calc(100% / (1 - var(--divider-position-value)));
     }

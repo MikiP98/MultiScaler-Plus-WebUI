@@ -142,6 +142,8 @@
         position: absolute;
         background-color: var(--background-color);
         transition: all var(--transition-sync);
+
+        --nav-size: calc(var(--unit) / 6);
     }
 
     #menu-right {
@@ -163,6 +165,9 @@
 
         width: var(--right);
         height: var(--down);
+
+        background-color: transparent;
+        background-image: radial-gradient(circle at 1px 0px, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) var(--nav-size), var(--background-color) 14px);
     }
     @media only screen and (orientation: portrait) {
         #menu-down {
@@ -227,8 +232,6 @@
         border: 1px solid lightblue;
 
         /* --divider: 14; */
-
-        --nav-size: calc(var(--unit) / 6);
     }
     #menu-right {
         display: flex;
@@ -238,7 +241,8 @@
     }
     #menu-right > nav {
         flex-direction: column;
-        width: calc(var(--nav-size) + var(--nav-size) * 4);  /* 4.7573874620270643468655067660867 */
+        width: var(--nav-size);
+        min-width: var(--nav-size);  /* IDK why, but it is required, without it the element is slower and unstable */
         /* overflow: visible; */
         
         border-width: 1px 1px 1px 0;
