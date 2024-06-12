@@ -62,6 +62,8 @@
             <Menu />
         </form>
     </div>
+
+    <div id="menu-corner-filler"></div>
 </div>
 
 <style>
@@ -136,7 +138,7 @@
         box-sizing: border-box;
     }
 
-    #menu-right, #menu-down {
+    #menu-right, #menu-down, #menu-corner-filler {
         position: absolute;
         background-color: var(--background-color);
         transition: all var(--transition-sync);
@@ -151,10 +153,16 @@
     }
     #menu-down {
         bottom: 0;
-        left: 0;
 
         height: var(--down);
         width: 100%;
+    }
+    #menu-corner-filler {
+        bottom: 0;
+        right: 0;
+
+        width: var(--right);
+        height: var(--down);
     }
     @media only screen and (orientation: portrait) {
         #menu-down {
@@ -218,15 +226,20 @@
 
         border: 1px solid lightblue;
 
-        --divider: 14;
+        /* --divider: 14; */
+
+        --nav-size: calc(var(--unit) / 6);
     }
     #menu-right {
         display: flex;
         flex-direction: row;
+
+        /* overflow: visible; */
     }
     #menu-right > nav {
         flex-direction: column;
-        width: calc(var(--right) / var(--divider));
+        width: calc(var(--nav-size) + var(--nav-size) * 4);  /* 4.7573874620270643468655067660867 */
+        /* overflow: visible; */
         
         border-width: 1px 1px 1px 0;
     }
@@ -236,7 +249,7 @@
     #menu-down > nav {
         border-width: 0 1px 1px 1px;
 
-        height: calc(var(--down) / var(--divider) * 1.333);
+        height: var(--nav-size);
     }
 
     #menu-down > form, #menu-right > form {

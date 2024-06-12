@@ -30,6 +30,10 @@
     function testGetScales() {
         console.log(getScales());
     }
+
+    let sharpness = 0.5;
+    let nedi_m = 4;
+    let output_format = 'webp';
 </script>
 
 <span>
@@ -53,25 +57,27 @@
     Algorithm:
 </span>
 <span>
-    Algorithm parameters
-    --- \/
+    <br>
+    Algorithm parameters <br>
+    --- \/ <br>
     <!-- If one is used by selected algorithms is is displayed without te down arrow -->
      <span>
         <label for="sharpness">Sharpness:</label>
-        <input type="range" id="sharpness" name="sharpness" min="0" max="1" step="0.01" />
-        <span>0.5</span>
+        <input type="range" id="sharpness" name="sharpness" min="0" max="1" step="0.01" bind:value={sharpness} />
+        <span>{sharpness}</span>
      </span>
      <span>
         <label for="nedi_m">NEDI m:</label>
-        <input type="number" id="nedi_m" name="nedi_m" min="1" step="1" />
+        <input type="number" id="nedi_m" name="nedi_m" min="1" step="1" bind:value={nedi_m} />
      </span>
 </span>
 <span>
-    Options
-    --- \/
+    <br>
+    Options <br>
+    --- \/ <br>
     <span>
         <label for="output_format">Output file format:</label>
-        <select id="output_format" name="output_format">
+        <select id="output_format" name="output_format" bind:value={output_format}>
             <option value="jpeg_xl">JPEG XL</option>
             <option value="avif">AVIF</option>
             <option value="png">PNG</option>
