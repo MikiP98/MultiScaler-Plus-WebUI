@@ -300,9 +300,14 @@
     }
     #image-right.mode-compare, #bg-image-right.mode-compare {
         --proportion: calc(var(--divider-position-value) / (1 - var(--divider-position-value)));
-        left: round(down, calc(-100% * var(--proportion)), 1px);  /* round stops the image from unstable jitter by 1 px */
+        left: calc(-100% * var(--proportion));  /* Default value without 'round()' for Opera support */
 
         width: calc(100% / (1 - var(--divider-position-value)));
+    }
+    @supports (left: round(down, 0px, 1px)) {  /* Not supported by Opera */
+        #image-right.mode-compare, #bg-image-right.mode-compare {
+            left: round(down, calc(-100% * var(--proportion)), 1px);  /* round stops the image from unstable jitter by 1 px */
+        }
     }
 
     #image-left.mode-left-right, #image-right.mode-left-right {
