@@ -259,6 +259,7 @@
     #menu-down > form, #menu-right > form {
         display: flex;
         flex-direction: column;
+        gap: calc(var(--unit) / 6);
         /* justify-content: space-between;
         height: 100%; */
 
